@@ -1,57 +1,86 @@
 import 'package:flutter/material.dart';
+import 'routes.dart';
 
 void main() {
   runApp(MyApp());
 }
 
-class Page1 extends StatelessWidget{
+class Page1 extends StatefulWidget {
+  @override
+  _Page1State createState() => _Page1State();
+}
+
+class _Page1State extends State<Page1> {
+  final TextEditingController _textEditingController = TextEditingController();
+  String _inputText = '';
+
+  @override
+  void dispose() {
+    _textEditingController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Page 1')),
       body: Container(
-        color: Colors.purple, // Cambia el color de fondo aquí
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Page 1 Content',
-                style: TextStyle(fontSize: 20),
+        color: Colors.purple,
+        padding: EdgeInsets.all(20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextField(
+              controller: _textEditingController,
+              decoration: InputDecoration(
+                hintText: 'Enter your text',
               ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/page2');
-                },
-                child: Text('Go to Page 2'),
-              ),
-            ],
-          ),
+              onChanged: (value) {
+                setState(() {
+                  _inputText = value;
+                });
+              },
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(
+                  context,
+                  page2Route,
+                  arguments: _inputText, // Pasamos el texto como argumento
+                );
+              },
+              child: Text('Go to Page 2'),
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-class Page2 extends StatelessWidget{
-  final String title;
-
-  const Page2({Key? key, required this.title}) : super(key: key);
-
+class Page2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final String textFromPage1 = ModalRoute.of(context)!.settings.arguments as String;
+
     return Scaffold(
-      appBar: AppBar(title: Text(title)),
+      appBar: AppBar(title: Text('Page 2')),
       body: Container(
-        color: Colors.green, // Cambia el color de fondo aquí
+        color: Colors.green,
+        padding: EdgeInsets.all(20),
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Page 2 Content',
+                'Text from Page 1:',
                 style: TextStyle(fontSize: 20),
+              ),
+              SizedBox(height: 10),
+              Text(
+                textFromPage1,
+                style: TextStyle(fontSize: 16),
               ),
               SizedBox(height: 20),
               ElevatedButton(
@@ -73,11 +102,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-
-      initialRoute: "/page1",
+      initialRoute: page1Route,
       routes: {
-        "/page1":(context) => Page1(),
-        "/page2":(context) => Page2(title: 'PAGE2'),
+        page1Route: (context) => Page1(),
+        page2Route: (context) => Page2(),
       },
     );
   }
